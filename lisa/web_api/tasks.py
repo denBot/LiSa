@@ -4,6 +4,7 @@
 
 import os
 import logging.config
+import requests
 
 from celery import states, Task
 from lisa.analysis.top_level import Master
@@ -12,6 +13,9 @@ from lisa.core.file_handling import save_output
 from lisa.core.base import AnalyzedPcap
 from lisa.web_api.app import celery_app
 from lisa.config import logging_config, storage_path
+
+api_success_url = os.getenv("API_SUCCESS_URL", None)
+api_failure_url = os.getenv("API_FAILURE_URL", None)
 
 logging.config.dictConfig(logging_config)
 log = logging.getLogger()
@@ -29,6 +33,14 @@ class LiSaBaseTask(Task):
             }
         )
         self.traceback = einfo.traceback
+
+        if api_failure_url:
+            url = api_failure_url.replace("<task_id>", task_id)
+            try:
+                requests.post(url, json=failure_meta)
+            except (ConnectionError, requests.exceptions.ConnectionError):
+                print("ConnectionError: Failed to send task success status for", task_id, "result to", url)
+
 
     def on_success(self, retval, task_id, args, kwargs):
         self.update_state(
@@ -78,6 +90,13 @@ def full_analysis(self, file_path, pretty=False, exec_time=20):
     master = Master(file_path, data_dir, exec_time)
     master.load_analyzers()
     master.run()
+
+    if api_success_url:
+        url = api_success_url.replace("<task_id>", self.request.id)
+        try:
+            requests.post(url, json=master.output)
+        except (ConnectionError, requests.exceptions.ConnectionError):
+            print("ConnectionError: Failed to send task success status for", self.request.id, "result to", url)
 
     output_file = f'{data_dir}/report.json'
 
