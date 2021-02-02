@@ -78,6 +78,18 @@ error_messages = {
             f'{min_exectime} and {max_exectime}.'
         )
     },
+    2023: {
+        'message': (
+            'Request should include either a *file* or *url* '
+            'parameter, please do not include both.'
+        )
+    },
+    2024: {
+        'message': 'The provided URL could not be reached.'
+    },
+    2025: {
+        'message': 'The provided URL is invalid.'
+    },
 
     # management
     3000: {

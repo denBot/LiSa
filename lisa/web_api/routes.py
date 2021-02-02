@@ -4,6 +4,8 @@
 
 import os
 import glob
+import requests
+import validators
 import logging.config
 
 from flask import jsonify, request, send_file
@@ -171,20 +173,90 @@ def task_pcap_create():
     return jsonify(res)
 
 
+def validate_file_url(url):
+    """Validates a given file URL
+    Checks if:
+    - url is invalid
+    - response code is invalid
+    - response content-disposition has no filename
+    :param url: The file URL to be validated
+    """
+    if not validators.url(url):
+        res = ErrorAPIResponse(2025).to_dict()
+        return jsonify(res), 400
+    
+    try:
+        r = requests.head(url, allow_redirects=True, timeout=10)
+
+        if r.status_code != 200:
+            res = ErrorAPIResponse(2024).to_dict()
+            return jsonify(res), 400
+        
+    except Exception as e:
+        print(e)
+        res = ErrorAPIResponse(2024).to_dict()
+        return jsonify(res), 400
+
+
+def file_from_url(url):
+    """Downloads a file from a given URL
+    :param url: The URL to grab the file from.
+    """
+    try:
+        res = requests.get(url, allow_redirects=True, timeout=10)
+        filename = get_response_filename(res)
+        
+        if not filename:
+            fname = os.path.basename(url)
+            filename = fname if fname else "binary-to-scan"
+        
+        file = res.content
+        return filename, file
+    except Exception as e:
+        print(e)
+        res = ErrorAPIResponse(2024).to_dict()
+        return jsonify(res), 400
+
+
+def get_response_filename(res):
+    content_disposition = res.headers.get('content-disposition', '')
+    filename = re.findall('filename=(.+)', content_disposition)
+    return filename[0] if len(filename) > 0 else None
+
+
 @app.route('/api/tasks/create/file', methods=['POST'])
 def task_file_create():
     """Endpoint for full analysis task."""
-    if 'file' not in request.files:
-        # no file
+
+    is_file_request = 'file' in request.files
+    is_url_request = 'url' in request.form
+
+    if not is_file_request and not is_url_request:
+        # no file or url provided
         res = ErrorAPIResponse(2020).to_dict()
         return jsonify(res), 400
 
-    file = request.files['file']
-
-    if file.filename == '':
-        # noname file
-        res = ErrorAPIResponse(2021).to_dict()
+    if is_file_request and is_url_request:
+        # both file and url provided
+        res = ErrorAPIResponse(2023).to_dict()
         return jsonify(res), 400
+
+    if is_url_request:
+        url = request.form['url']
+        error_response = validate_file_url(url)
+
+        if error_response:
+            return error_response
+
+        filename, file = file_from_url(url)
+    else:
+        file = request.files['file']
+        filename = file.filename
+
+        if file.filename == '':
+            # noname file
+            res = ErrorAPIResponse(2021).to_dict()
+            return jsonify(res), 400
 
     # get pretty print parameter
     pretty = False
@@ -215,12 +287,19 @@ def task_file_create():
 
     # prepare directory and save file
     os.mkdir(f'{storage_path}/{task_id}')
-    file_path = f'{storage_path}/{task_id}/{file.filename}'
-    file.save(file_path)
+    file_path = f'{storage_path}/{task_id}/{filename}'
+
+    if is_url_request:
+        open(file_path, 'wb').write(file)
+    else:
+        file.save(file_path)
 
     # run analysis
     args = (file_path,)
-    kwargs = {'pretty': pretty, 'exec_time': exec_time}
+    kwargs = {
+        'pretty': pretty,
+        'exec_time': exec_time,
+    }
     tasks.full_analysis.apply_async(args, kwargs, task_id=task_id)
 
     res = {
