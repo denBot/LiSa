@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Layout, Radio, Alert, Spin, InputNumber } from "antd";
+import { Button, Layout, Radio, Alert, Spin, InputNumber, Input } from "antd";
 
 const { Content, Header } = Layout;
 
@@ -9,7 +9,8 @@ class SubmitPage extends Component {
 
     this.state = {
       file: "",
-      type: "",
+      type: "binary",
+      url: "",
       exectime: 20,
       status: "",
       uploading: false,
@@ -26,7 +27,11 @@ class SubmitPage extends Component {
     let data = new FormData();
 
     if (this.state.type === "binary") {
-      data.append("file", this.state.file);
+      if (this.state.url !== "") {
+        data.append("url", this.state.url);
+      } else {
+        data.append("file", this.state.file);
+      }
       data.append("exec_time", this.state.exectime);
 
       fetch("http://" + process.env.REACT_APP_HOST + "/api/tasks/create/file", {
@@ -104,14 +109,26 @@ class SubmitPage extends Component {
       exectime: value
     });
   };
-
+  handleInputURL = (e) => {
+    this.setState({
+      url: e.target.value,
+    });
+  };
+  validateURL = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;  
+    }
+  };
   render() {
-    const { file, type, status, uploading, task_id } = this.state;
+    const { file, type, status, uploading, task_id, url } = this.state;
 
     let disabled = true;
     let alert;
 
-    if (file !== "" && type !== "") {
+    if ((file !== "" || this.validateURL(url)) && type !== "") {
       disabled = false;
     }
 
@@ -151,18 +168,32 @@ class SubmitPage extends Component {
       binaryForm = <div />;
     } else {
       binaryForm = (
-        <div className="upload-form-row">
-          <p className="upload-form-label">
-            <label title="Execution time">Execution time (seconds)</label>
-          </p>
-          <div className="upload-form-input">
-            <InputNumber
-              className="upload-form-exectime-input"
-              min={10}
-              max={1000}
-              defaultValue={20}
-              onChange={this.handleInputExecutionTime}
-            />
+        <div>
+          <div className="upload-form-row">
+            <p className="upload-form-label">
+              <label title="Execution time">URL</label>
+            </p>
+            <div className="upload-form-input">
+              <Input
+                className="upload-form-exectime-input"
+                onChange={this.handleInputURL}
+              />
+            </div>
+          </div>
+
+          <div className="upload-form-row">
+            <p className="upload-form-label">
+              <label title="Execution time">Execution time (seconds)</label>
+            </p>
+            <div className="upload-form-input">
+              <InputNumber
+                className="upload-form-exectime-input"
+                min={10}
+                max={1000}
+                defaultValue={20}
+                onChange={this.handleInputExecutionTime}
+              />
+            </div>
           </div>
         </div>
       );
