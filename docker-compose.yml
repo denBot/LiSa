@@ -21,13 +21,15 @@ services:
     build:
       context: .
       dockerfile: ./docker/worker/Dockerfile
-    environment:
-      # - VPN=/vpn
-      # - API_SUCCESS_URL=http://172.42.0.1:5001/api/lisa-analysis/success/<task_id>
-      # - API_FAILURE_URL=http://172.42.0.1:5001/api/lisa-analysis/failure/<task_id>
+    #environment:
+      #- VPN=/vpn
+      #- API_SUCCESS_URL=http://172.42.0.1:5001/api/lisa-analysis/success/<task_id>
+      #- API_FAILURE_URL=http://172.42.0.1:5001/api/lisa-analysis/failure/<task_id>
+      #- VIRUSTOTAL_API_KEY=<enter-key-here>
+      #- VIRUSTOTAL_ENABLE=True
     volumes:
       - "./data/storage:/home/lisa/data/storage"
-      # - "./vpn:/vpn"
+      #- "./vpn:/vpn"
     devices:
       - "/dev/net/tun:/dev/net/tun"
     sysctls:

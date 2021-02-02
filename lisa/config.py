@@ -1,3 +1,4 @@
+import os
 """
     Configuration.
 """
@@ -9,13 +10,13 @@ analyzers_config = [
     'lisa.analysis.static_analysis.StaticAnalyzer',
     'lisa.analysis.dynamic_analysis.DynamicAnalyzer',
     'lisa.analysis.network_analysis.NetworkAnalyzer',
-
-    # 'lisa.analysis.virustotal.VirusTotalAnalyzer'
-
     # custom modules
 ]
 
-virus_total_key = ''
+if os.getenv("VIRUSTOTAL_ENABLE", False) == "True":
+    analyzers_config.append('lisa.analysis.virustotal.VirusTotalAnalyzer')
+
+virus_total_key = os.getenv("VIRUSTOTAL_API_KEY", "")
 
 dynamic_config = {
     'min_exectime': 10,
