@@ -24,13 +24,14 @@ log = logging.getLogger()
 class LiSaBaseTask(Task):
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
+        failure_meta = {
+            'exc_type': type(exc).__name__,
+            'traceback': einfo.traceback,
+            'filename': os.path.basename(args[0])
+        }
         self.update_state(
             state=states.FAILURE,
-            meta={
-                'exc_type': type(exc).__name__,
-                'traceback': einfo.traceback,
-                'filename': os.path.basename(args[0])
-            }
+            meta=failure_meta
         )
         self.traceback = einfo.traceback
 
