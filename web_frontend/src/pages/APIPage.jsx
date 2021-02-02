@@ -62,7 +62,10 @@ const docsData = [
       <div className="api-docs-header">
         <span className="api-tag api-tag-post">POST</span>
         <code>/api/tasks/create/file</code>
-        <p className="api-short-desc">Creates full binary analysis task.</p>
+        <p className="api-short-desc">
+          Creates full binary analysis task.
+          Required: either the <strong>file</strong> or <strong>url</strong> paramter.
+        </p>
       </div>
     ),
     inner: (
@@ -71,6 +74,9 @@ const docsData = [
         <ul>
           <li>
             <code className="api-param">file</code> File for analysis.
+          </li>
+          <li>
+            <code className="api-param">url</code> URL for analysis.
           </li>
           <li>
             <code className="api-param">pretty</code> JSON indentation
