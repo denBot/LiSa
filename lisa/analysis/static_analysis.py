@@ -79,34 +79,22 @@ class StaticAnalyzer(AbstractSubAnalyzer):
         self._output['symbols'] = symbols
         self._output['sections'] = sections
 
-    def _unpack_binary(self):
-        """Attemptsto unpack binary using the UPX decompression tool.
-        """
-        p = subprocess.Popen(
-            f'upx --decompress {self._file.path}', 
-            stdout=subprocess.PIPE, 
-            shell=True
-        )
-        p.communicate()
-        p.wait()
-
-        # Prevent any infinite loops if unpack fails
-        self._load_strings(unpack=False)
-
     def _load_strings(self, unpack=True):
         """Returns list of printable strings contained in binary.
         Uses standard linux tool `strings`.
 
         :param file_path: Path to file.
         """
+        # Attempt to decompress potentially packed binary using UPX
+        p = subprocess.Popen(['upx', '--decompress', self._file.path],
+                             stdout=subprocess.PIPE,
+                             universal_newlines=True)
+        p.communicate()
+        p.wait()
 
         p = subprocess.Popen(['strings', self._file.path],
                              stdout=subprocess.PIPE,
                              universal_newlines=True)
         out = p.communicate()[0]
         strings_list = out.splitlines()
-
-        if unpack and any("UPX!" in s for s in strings_list):
-            self._unpack_binary()
-
         self._output['strings'] = strings_list

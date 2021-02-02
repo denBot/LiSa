@@ -3,6 +3,7 @@
 """
 
 import os
+import re
 import glob
 import requests
 import validators
