@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     tar \
     e2tools \
+    upx \
     && git clone https://github.com/radare/radare2 \
     && radare2/sys/install.sh \
     && useradd -m lisa \

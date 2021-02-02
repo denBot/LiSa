@@ -8,6 +8,7 @@ __pycache__/
 *.so
 
 # Data
+data/
 images/*/**
 vpn/
 *.img
