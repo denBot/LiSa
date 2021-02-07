@@ -206,11 +206,11 @@ def file_from_url(url):
     try:
         res = requests.get(url, allow_redirects=True, timeout=10)
         filename = get_response_filename(res)
-        
+
         if not filename:
             fname = os.path.basename(url)
-            filename = fname if fname else "binary-to-scan"
-        
+            filename = fname if fname else "unknown_filename"
+
         file = res.content
         return filename, file
     except Exception as e:
