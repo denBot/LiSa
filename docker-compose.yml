@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/api/Dockerfile
     volumes:
-      - "/mnt/blockstorage:/home/lisa/data/storage"
+      - "/mnt/blockstorage/lisa:/home/lisa/data/storage"
     depends_on:
       - rabbitmq
       - worker
@@ -28,7 +28,7 @@ services:
       # - VIRUSTOTAL_API_KEY=API_KEY_HERE
       # - VIRUSTOTAL_ENABLE=True
     volumes:
-      - "/mnt/blockstorage:/home/lisa/data/storage"
+      - "/mnt/blockstorage/lisa:/home/lisa/data/storage"
       - "./vpn:/vpn"
     devices:
       - "/dev/net/tun:/dev/net/tun"
