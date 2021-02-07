@@ -13,10 +13,10 @@ analyzers_config = [
     # custom modules
 ]
 
-if os.getenv("VIRUSTOTAL_ENABLE", False) == "True":
-    analyzers_config.append('lisa.analysis.virustotal.VirusTotalAnalyzer')
-
 virus_total_key = os.getenv("VIRUSTOTAL_API_KEY", "")
+
+if virus_total_key:
+     analyzers_config.append('lisa.analysis.virustotal.VirusTotalAnalyzer')
 
 dynamic_config = {
     'min_exectime': 10,
