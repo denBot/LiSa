@@ -90,7 +90,7 @@ class QEMUGuest():
         )
 
         self._proc = pexpect.spawn(
-            self._run_cmd, encoding='utf-8', timeout=self._file.exec_time+50
+            self._run_cmd, encoding='utf-8', timeout=self._file.exec_time+120
         )
         self._proc.logfile = open(
             f'{self._file.data_dir}/machine.log', 'w', encoding='utf-8'
@@ -137,7 +137,7 @@ class QEMUGuest():
         self._proc.sendline('sync')
         self._proc.expect(self._prompt)
         self._proc.sendline('poweroff')
-        self._proc.expect(pexpect.EOF, timeout=120)
+        self._proc.expect(pexpect.EOF)
         self._proc.logfile.close()
         self._is_running = False
 
