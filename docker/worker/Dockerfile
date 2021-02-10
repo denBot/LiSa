@@ -18,8 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tar \
     e2tools \
     upx \
-    && git clone https://github.com/radare/radare2 \
-    && radare2/sys/install.sh \
+    && wget https://github.com/radareorg/radare2/releases/download/5.1.0/radare2_5.1.0_amd64.deb \
+    && dpkg -i radare2_5.1.0_amd64.deb \
+    && rm radare2_5.1.0_amd64.deb \
     && useradd -m lisa \
     && echo "Downloading LiSa Linux images ..." \
     && wget https://github.com/danieluhricek/linux-images/archive/v1.0.1.tar.gz -q -O - | tar xz -C /home/lisa \
