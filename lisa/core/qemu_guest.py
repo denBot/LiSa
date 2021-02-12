@@ -134,10 +134,14 @@ class QEMUGuest():
 
     def poweroff_vm(self):
         """Shutdowns guest VM."""
-        self._proc.sendline('sync')
-        self._proc.expect(self._prompt)
-        self._proc.sendline('poweroff')
-        self._proc.expect(pexpect.EOF)
+        try:
+            self._proc.sendline('sync')
+            self._proc.expect(self._prompt)
+            self._proc.sendline('poweroff')
+            self._proc.expect(pexpect.EOF)
+        except pexpect.exceptions.TIMEOUT:
+            self._proc.kill()
+
         self._proc.logfile.close()
         self._is_running = False
 
