@@ -4,6 +4,7 @@
 
 import os
 import time
+import signal
 import shutil
 import pexpect
 import logging
@@ -140,7 +141,7 @@ class QEMUGuest():
             self._proc.sendline('poweroff')
             self._proc.expect(pexpect.EOF)
         except pexpect.exceptions.TIMEOUT:
-            self._proc.kill()
+            self._proc.kill(signal.SIGKILL)
 
         self._proc.logfile.close()
         self._is_running = False
