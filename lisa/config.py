@@ -13,8 +13,8 @@ analyzers_config = [
     # custom modules
 ]
 
-rabbit_mq_pass = os.getenv("RABBITMQ_DEFAULT_PASS", "lisa")
-mysql_pass = os.getenv("MYSQL_PASSWORD", "lisa")
+rabbit_mq_pass = os.getenv("RABBITMQ_PASS", "lisa")
+mysql_pass = os.getenv("MYSQL_PASS", "lisa")
 virus_total_key = os.getenv("VIRUSTOTAL_API_KEY", "")
 
 if virus_total_key:
