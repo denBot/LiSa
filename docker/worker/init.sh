@@ -28,4 +28,5 @@ su - lisa -c "API_SUCCESS_URL=\"$API_SUCCESS_URL\" \
               VIRUSTOTAL_API_KEY=\"$VIRUSTOTAL_API_KEY\" \
               RABBITMQ_DEFAULT_PASS=\"$RABBITMQ_DEFAULT_PASS\" \
               MYSQL_PASSWORD=\"$MYSQL_PASSWORD\" \
+              BROKER_HEARTBEAT=0 \
               celery -A lisa.web_api.tasks worker --loglevel=info --concurrency=1 -n lisa-worker@%h"

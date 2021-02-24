@@ -26,6 +26,9 @@ services:
       - API_SUCCESS_URL=${API_SUCCESS_URL}
       - API_FAILURE_URL=${API_FAILURE_URL}
       - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Env var MYSQL_PASSWORD is not set.}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:?Env var RABBITMQ_DEFAULT_PASS is not set.}
+    ports:
     volumes:
       - "${LISA_STORAGE_PATH}:/home/lisa/data/storage"
       - "${LISA_VPN_PATH}:/vpn"
@@ -59,7 +62,7 @@ services:
     image: rabbitmq:latest
     environment:
       - RABBITMQ_DEFAULT_USER=lisa
-      - RABBITMQ_DEFAULT_PASS=lisa
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:?Env var RABBITMQ_DEFAULT_PASS is not set.}
     ports:
       - 5672:5672
     networks:
@@ -71,7 +74,7 @@ services:
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=lisa
-      - MYSQL_PASSWORD=lisa
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Env var MYSQL_PASSWORD is not set.}
       - MYSQL_DATABASE=lisadb
     volumes:
       - "${LISA_DB_PATH}:/var/lib/mysql"
