@@ -13,10 +13,12 @@ analyzers_config = [
     # custom modules
 ]
 
-if os.getenv("VIRUSTOTAL_ENABLE", False) == "True":
-    analyzers_config.append('lisa.analysis.virustotal.VirusTotalAnalyzer')
-
+rabbit_mq_pass = os.getenv("RABBITMQ_PASS", "lisa")
+mysql_pass = os.getenv("MYSQL_PASS", "lisa")
 virus_total_key = os.getenv("VIRUSTOTAL_API_KEY", "")
+
+if virus_total_key:
+     analyzers_config.append('lisa.analysis.virustotal.VirusTotalAnalyzer')
 
 dynamic_config = {
     'min_exectime': 10,
@@ -77,6 +79,6 @@ logging_config = {
     }
 }
 
-celery_broker = 'pyamqp://lisa:lisa@172.42.0.13//'
-celery_backend = 'db+mysql+pymysql://lisa:lisa@172.42.0.14/lisadb'
-sql_backend = 'mysql+pymysql://lisa:lisa@172.42.0.14/lisadb'
+celery_broker = f'pyamqp://lisa:{rabbit_mq_pass}@172.42.0.13//'
+celery_backend = f'db+mysql+pymysql://lisa:{mysql_pass}@172.42.0.14/lisadb'
+sql_backend = f'mysql+pymysql://lisa:{mysql_pass}@172.42.0.14/lisadb'

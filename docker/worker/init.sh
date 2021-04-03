@@ -26,5 +26,6 @@ cat /etc/resolv.conf
 su - lisa -c "API_SUCCESS_URL=\"$API_SUCCESS_URL\" \
               API_FAILURE_URL=\"$API_FAILURE_URL\" \
               VIRUSTOTAL_API_KEY=\"$VIRUSTOTAL_API_KEY\" \
-              VIRUSTOTAL_ENABLE=\"$VIRUSTOTAL_ENABLE\" \
-              celery -A lisa.web_api.tasks worker --loglevel=info --concurrency=1 -n lisa-worker@%h"
+              RABBITMQ_PASS=\"$RABBITMQ_DEFAULT_PASS\" \
+              MYSQL_PASS=\"$MYSQL_PASSWORD\" \
+              celery -A lisa.web_api.tasks worker --loglevel=info --concurrency=1 -n lisa-worker@%h --without-heartbeat"

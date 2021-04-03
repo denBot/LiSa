@@ -4,6 +4,7 @@
 
 import os
 import time
+import signal
 import shutil
 import pexpect
 import logging
@@ -90,7 +91,7 @@ class QEMUGuest():
         )
 
         self._proc = pexpect.spawn(
-            self._run_cmd, encoding='utf-8', timeout=self._file.exec_time+50
+            self._run_cmd, encoding='utf-8', timeout=self._file.exec_time+120
         )
         self._proc.logfile = open(
             f'{self._file.data_dir}/machine.log', 'w', encoding='utf-8'
@@ -134,10 +135,14 @@ class QEMUGuest():
 
     def poweroff_vm(self):
         """Shutdowns guest VM."""
-        self._proc.sendline('sync')
-        self._proc.expect(self._prompt)
-        self._proc.sendline('poweroff')
-        self._proc.expect(pexpect.EOF)
+        try:
+            self._proc.sendline('sync')
+            self._proc.expect(self._prompt)
+            self._proc.sendline('poweroff')
+            self._proc.expect(pexpect.EOF)
+        except pexpect.exceptions.TIMEOUT:
+            self._proc.kill(signal.SIGKILL)
+
         self._proc.logfile.close()
         self._is_running = False
 

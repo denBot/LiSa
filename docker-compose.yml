@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./docker/api/Dockerfile
     volumes:
-      - "./data/storage:/home/lisa/data/storage"
+      - "${LISA_STORAGE_PATH}:/home/lisa/data/storage"
     depends_on:
       - rabbitmq
       - worker
@@ -21,15 +21,16 @@ services:
     build:
       context: .
       dockerfile: ./docker/worker/Dockerfile
-    #environment:
-      #- VPN=/vpn
-      #- API_SUCCESS_URL=http://172.42.0.1:5001/api/lisa-analysis/success/<task_id>
-      #- API_FAILURE_URL=http://172.42.0.1:5001/api/lisa-analysis/failure/<task_id>
-      #- VIRUSTOTAL_API_KEY=<enter-key-here>
-      #- VIRUSTOTAL_ENABLE=True
+    environment:
+      # - VPN=/vpn
+      - API_SUCCESS_URL=${API_SUCCESS_URL}
+      - API_FAILURE_URL=${API_FAILURE_URL}
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Env var MYSQL_PASSWORD is not set.}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:?Env var RABBITMQ_DEFAULT_PASS is not set.}
     volumes:
-      - "./data/storage:/home/lisa/data/storage"
-      #- "./vpn:/vpn"
+      - "${LISA_STORAGE_PATH}:/home/lisa/data/storage"
+      - "${LISA_VPN_PATH}:/vpn"
     devices:
       - "/dev/net/tun:/dev/net/tun"
     sysctls:
@@ -47,9 +48,9 @@ services:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
       args:
-        webhost: localhost:4242
+        webhost: ${LISA_WEBHOST}:${LISA_PORT}
     ports:
-      - 4242:80
+      - ${LISA_PORT}:80
     depends_on:
       - api
     networks:
@@ -60,7 +61,7 @@ services:
     image: rabbitmq:latest
     environment:
       - RABBITMQ_DEFAULT_USER=lisa
-      - RABBITMQ_DEFAULT_PASS=lisa
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:?Env var RABBITMQ_DEFAULT_PASS is not set.}
     ports:
       - 5672:5672
     networks:
@@ -72,10 +73,10 @@ services:
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
       - MYSQL_USER=lisa
-      - MYSQL_PASSWORD=lisa
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?Env var MYSQL_PASSWORD is not set.}
       - MYSQL_DATABASE=lisadb
     volumes:
-      - "./data/db:/var/lib/mysql"
+      - "${LISA_DB_PATH}:/var/lib/mysql"
     networks:
       lisanet:
         ipv4_address: 172.42.0.14
